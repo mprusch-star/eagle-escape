@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Eagle Escape: Operation Multiplication</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(135deg,#eaf2f8,#dfeaf4);color:#1f2937}
+.wrap{max-width:1000px;margin:auto;padding:22px}
+header{background:#17365d;color:#fff;border-radius:20px;padding:30px;text-align:center;box-shadow:0 5px 18px #0002}
+header h1{font-size:38px;margin:0 0 8px}.eagle{font-size:58px}.tag{display:inline-block;background:#f4b183;color:#17365d;font-weight:bold;padding:7px 13px;border-radius:20px;margin-top:8px}
+.card{background:#fff;border-radius:18px;padding:24px;margin:18px 0;box-shadow:0 3px 14px #0001}
+.room{border-left:8px solid #17365d}.locked{opacity:.5}.hidden{display:none}
+h2{color:#17365d;margin-top:0}.story{background:#eef5fb;padding:15px;border-radius:12px}
+.problem{font-size:25px;font-weight:bold;margin:15px 0}.choices button,.unlock{display:block;width:100%;text-align:left;background:#f5f7fa;color:#1f2937;border:2px solid #cbd5e1;margin:9px 0;padding:13px;border-radius:10px;font-size:17px;cursor:pointer}
+.choices button:hover{background:#e8eef5}.unlock{background:#17365d;color:white;text-align:center;width:auto;display:inline-block}
+input{font-size:20px;padding:10px;width:180px;border:2px solid #cbd5e1;border-radius:9px}.msg{font-weight:bold;margin-top:12px}.success{color:#18794e}.error{color:#b42318}
+.code{background:#fff4cc;border:2px dashed #e0a800;padding:13px;border-radius:10px;margin-top:12px}.progress{position:sticky;top:0;background:#fff;padding:10px;border-radius:10px;z-index:5;box-shadow:0 2px 8px #0001;text-align:center;font-weight:bold}
+footer{text-align:center;color:#64748b;padding:18px}.final{background:#fff4cc;border:4px solid #f4b183;text-align:center}
+.small{font-size:14px;color:#64748b}.score{font-size:18px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<div class="eagle">🦅</div>
+<h1>EAGLE ESCAPE</h1>
+<h2 style="color:white">Operation: Multiplication Mission</h2>
+<p>Your class has been selected for a top-secret Eagle Mission!</p>
+<div class="tag">ROOM 206 • 5TH GRADE</div>
+</header>
+
+<div class="progress">Mission Progress: <span id="progress">0 / 10 Rooms Escaped</span></div>
+
+<div class="card story">
+<h2>🎯 Your Mission</h2>
+<p>The Eagle Headquarters security system has gone into lockdown. Ten multiplication locks are protecting the school's Eagle Flight Plan. Your mission is to travel through all 10 rooms, solve each challenge, collect the secret codes, and activate the final Eagle Escape.</p>
+<p><b>Rules:</b> Work independently. Show scratch work when needed. Try each challenge before using its hint. When you unlock a room, record the secret code on your paper.</p>
+</div>
+
+<div id="rooms"></div>
+
+<div id="final" class="card final hidden">
+<h1>🦅 EAGLE ESCAPE COMPLETE!</h1>
+<h2>You have successfully completed the Multiplication Mission!</h2>
+<p class="score">All 10 rooms have been unlocked.</p>
+<p>You used multiplication facts, strategies, reasoning, and problem-solving to rescue the Eagle Flight Plan.</p>
+<h2>🏆 MISSION ACCOMPLISHED 🏆</h2>
+<p><b>Show this screen to Mr. Prusch when you are finished.</b></p>
+</div>
+
+<footer>Operation Eagle Escape • Room 206 • 5th Grade Mathematics</footer>
+</div>
+
+<script>
+const rooms=[
+{title:"The Eagle Gate",story:"The main gate will open only when you prove your multiplication skills.",type:"mc",q:"What is 324 × 12?",opts:["3,788","3,888","3,988","4,088"],ans:1,code:"WING"},
+{title:"The Supply Room",story:"The Eagles need supplies. Calculate the total number of items in the shipment.",type:"input",q:"There are 236 boxes with 14 pencils in each box. How many pencils are there altogether?",ans:3304,code:"FLY"},
+{title:"The Radar Room",story:"The radar screen is displaying a multiplication code.",type:"mc",q:"Which equation has a product of 8,736?",opts:["312 × 28","324 × 27","364 × 24","336 × 26"],ans:1,code:"HIGH"},
+{title:"The Training Hangar",story:"Your Eagle team is training. Choose the correct product.",type:"mc",q:"What is 428 × 36?",opts:["15,208","15,408","15,608","15,808"],ans:1,code:"FLIGHT"},
+{title:"The Supply Truck",story:"A truck has arrived with Eagle supplies. Solve the word problem.",type:"input",q:"The school orders 1,248 packs of stickers. Each pack contains 125 stickers. How many stickers are ordered?",ans:156000,code:"POWER"},
+{title:"The Code Breaker",story:"A digital lock needs the correct product.",type:"mc",q:"What is 735 × 24?",opts:["16,440","17,540","17,640","18,640"],ans:2,code:"EAGLE"},
+{title:"The Map Room",story:"The Eagle Flight Map contains a multiplication clue.",type:"input",q:"There are 324 rows of seats with 216 seats in each row. How many seats are there altogether?",ans:69984,code:"ROUTE"},
+{title:"The Storm Shelter",story:"A storm is approaching! Calculate the number of emergency supplies available.",type:"mc",q:"A shelter has 1,125 boxes with 240 water bottles in each box. How many bottles are there?",opts:["260,000","270,000","280,000","290,000"],ans:2,code:"SAFE"},
+{title:"The Secret Hangar",story:"You are almost there. Solve this larger multiplication challenge.",type:"input",q:"A factory produces 425 parts each day for 312 days. How many parts are produced?",ans:132600,code:"READY"},
+{title:"The Final Eagle Lock",story:"The final lock protects the Eagle Flight Plan. One last multiplication challenge stands between you and freedom!",type:"mc",q:"What is 1,236 × 315?",opts:["389,340","388,340","389,360","389,460"],ans:0,code:"ESCAPE"}
+];
+
+let unlocked=0;
+const container=document.getElementById("rooms");
+
+function render(){
+rooms.forEach((r,i)=>{
+ let disabled=i>0?" locked":"";
+ let div=document.createElement("div");div.className="card room"+disabled;div.id="room"+i;
+ let content=`<h2>Room ${i+1}: ${r.title}</h2><div class="story">${r.story}</div><div class="problem">${r.q}</div>`;
+ if(r.type==="mc"){
+   content+=`<div class="choices">`+r.opts.map((x,j)=>`<button ${i>0?"disabled":""} onclick="answerMC(${i},${j})">${String.fromCharCode(65+j)}. ${x}</button>`).join("")+`</div>`;
+ }else{
+   content+=`<input id="in${i}" type="number" ${i>0?"disabled":""} placeholder="Your answer"> <button class="unlock" id="btn${i}" ${i>0?"disabled":""} onclick="answerInput(${i})">Unlock</button>`;
+ }
+ content+=`<div id="msg${i}" class="msg"></div><div class="small">Hint: ${hint(i)}</div>`;
+ div.innerHTML=content;container.appendChild(div);
+ });
+}
+function hint(i){
+const h=[
+"Use partial products: multiply 324 by 10 and by 2, then combine.",
+"Break 14 into 10 and 4, then multiply each part by 236.",
+"Estimate first, then calculate each choice using partial products.",
+"Multiply 428 by 30 and by 6, then add the two products.",
+"Multiply 1,248 by 100 and by 25, then combine the results.",
+"Break 24 into 20 and 4, then add the partial products.",
+"Use 324 × 216 by breaking 216 into 200, 10, and 6.",
+"Break 240 into 24 × 10, or use place value to simplify the multiplication.",
+"Break 312 into 300 and 12, then multiply each part by 425.",
+"Break 315 into 300, 10, and 5, then add the three partial products."
+];return h[i];
+}
+function unlock(i){
+unlocked++;document.getElementById("progress").textContent=unlocked+" / 10 Rooms Escaped";
+const msg=document.getElementById("msg"+i);msg.innerHTML=`<span class="success">✓ Lock opened! Secret code: <b>${rooms[i].code}</b></span>`;
+if(i<9){
+ const next=document.getElementById("room"+(i+1));next.classList.remove("locked");
+ next.querySelectorAll("button").forEach(b=>b.disabled=false);
+ const inp=next.querySelector("input");if(inp)inp.disabled=false;
+ next.scrollIntoView({behavior:"smooth"});
+}else{
+ document.getElementById("final").classList.remove("hidden");document.getElementById("final").scrollIntoView({behavior:"smooth"});
+}
+}
+function answerMC(i,j){
+if(j===rooms[i].ans){unlock(i)}else{const m=document.getElementById("msg"+i);m.textContent="Not quite. Recheck your multiplication and try again.";m.className="msg error";}
+}
+function answerInput(i){
+const v=Number(document.getElementById("in"+i).value);
+if(v===rooms[i].ans)unlock(i);else{const m=document.getElementById("msg"+i);m.textContent="Not quite. Check your work and try again.";m.className="msg error";}
+}
+render();
+</script>
+</body>
+</html>
